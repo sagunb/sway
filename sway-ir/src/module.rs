@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use crate::{
     context::Context,
     function::{Function, FunctionIterator},
+    metadata::Metadata,
     value::Value,
 };
 
@@ -17,10 +18,11 @@ pub struct Module(pub generational_arena::Index);
 
 #[doc(hidden)]
 pub struct ModuleContent {
-    pub name: String,
+    pub name: String,   // XXX unused; remove me
     pub kind: Kind,
     pub functions: Vec<Function>,
     pub globals: HashMap<String, Value>,
+    pub metadata: Metadata,
 }
 
 /// The different 'kinds' of Sway module: `Contract`, `Library`, `Predicate` or `Script`.
@@ -42,6 +44,7 @@ impl Module {
             kind,
             functions: Vec::new(),
             globals: HashMap::new(),
+            metadata: Default::default(),
         };
         Module(context.modules.insert(content))
     }

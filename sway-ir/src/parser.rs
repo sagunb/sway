@@ -617,7 +617,8 @@ mod ir_builder {
                         .map(|IrAstAsmOp { name, args, imm }| AsmInstruction {
                             name,
                             args,
-                            immediate: imm, //: Option<String>,
+                            immediate: imm,
+                            span,
                         })
                         .collect();
                     block.ins(context).asm_block(args, body, return_name)

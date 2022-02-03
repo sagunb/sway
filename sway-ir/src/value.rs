@@ -6,6 +6,8 @@
 //! Like most IR data structures they are `Copy` and cheap to pass around by value.  They are
 //! therefore also easy to replace, a common practise for optimization passes.
 
+use sway_types::span::Span;
+
 use crate::{constant::Constant, context::Context, instruction::Instruction, irtype::Type};
 
 /// A wrapper around an [ECS](https://github.com/fitzgen/generational-arena) handle into the
@@ -38,6 +40,11 @@ impl Value {
     pub fn new_instruction(context: &mut Context, instruction: Instruction) -> Value {
         let content = ValueContent::Instruction(instruction);
         Value(context.values.insert(content))
+    }
+
+    /// Return this value's source span.
+    pub fn get_span(&self, _context: &Context) -> Span {
+        todo!("value.get_span()")
     }
 
     /// Return whether this is a constant value.

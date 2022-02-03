@@ -8,6 +8,8 @@
 //! this should be addressed in the future, perhaps by using compiler intrinsic calls instead of
 //! the ASM blocks where possible.
 
+use sway_types::ident::Ident;
+
 use crate::{
     asm::{AsmArg, AsmBlock, AsmInstruction},
     block::Block,
@@ -17,7 +19,6 @@ use crate::{
     pointer::Pointer,
     value::Value,
 };
-use sway_types::ident::Ident;
 
 #[derive(Debug, Clone)]
 pub enum Instruction {

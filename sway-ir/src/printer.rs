@@ -477,6 +477,7 @@ fn asm_block_to_doc(
                              name,
                              args,
                              immediate,
+                             span,
                          }| {
                             Doc::line(
                                 Doc::text(format!("{:6} ", name.as_str())).append(
