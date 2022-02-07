@@ -1,9 +1,12 @@
-use std::collections::HashMap;
+/// Associated metadata attached mostly to values.
+///
+/// Each value (instruction, function argument or constant) has associated metadata which helps
+/// describe properties which aren't required for code generation, but help with other
+/// introspective tools (e.g., the debugger) or compiler error messages.
 
-#[derive(Default)]
-pub struct Metadata {
-    metadata: HashMap<Metadatum, u64>,
-}
+use sway_types::span::Span;
+
+use crate::context::Context;
 
 pub enum Metadatum {
     FileLocation(std::path::PathBuf),
@@ -13,4 +16,12 @@ pub enum Metadatum {
         start: u64,
         end: u64,
     },
+}
+
+pub type MetadataIndex = generational_arena::Index;
+
+impl Metadatum {
+    pub fn from_span(_context: &mut Context, _span: &Span) -> MetadataIndex {
+        todo!()
+    }
 }

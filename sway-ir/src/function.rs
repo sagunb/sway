@@ -8,6 +8,8 @@
 
 use std::collections::{BTreeMap, HashMap};
 
+use sway_types::span::Span;
+
 use crate::{
     block::{Block, BlockIterator, Label},
     constant::Constant,
@@ -16,6 +18,7 @@ use crate::{
     module::Module,
     pointer::{Pointer, PointerContent},
     value::Value,
+    metadata::Metadatum,
 };
 
 /// A wrapper around an [ECS](https://github.com/fitzgen/generational-arena) handle into the
@@ -49,14 +52,17 @@ impl Function {
         context: &mut Context,
         module: Module,
         name: String,
-        args: Vec<(String, Type)>,
+        args: Vec<(String, Type, &Span)>,
         return_type: Type,
         selector: Option<[u8; 4]>,
         is_public: bool,
     ) -> Function {
         let arguments = args
             .into_iter()
-            .map(|(name, ty)| (name, Value::new_argument(context, ty)))
+            .map(|(name, ty, span)| {
+                let span_md_idx = Metadatum::from_span(context, span);
+                (name, Value::new_argument(context, ty, span_md_idx))
+            })
             .collect();
         let content = FunctionContent {
             name,

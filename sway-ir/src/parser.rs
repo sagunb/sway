@@ -51,9 +51,9 @@ mod ir_builder {
                     }
                 }
 
-            rule fn_arg() -> (IrAstTy, String)
-                = name:id() ":" _ ty:ast_ty() {
-                    (ty, name)
+            rule fn_arg() -> (IrAstTy, String, Option<u64>)
+                = name:id() mdi:metadata_idx()? ":" _ ty:ast_ty() {
+                    (ty, name, mdi)
                 }
 
             rule fn_local() -> (IrAstTy, String, bool, Option<IrAstOperation>)
@@ -75,16 +75,22 @@ mod ir_builder {
                 }
 
             rule instr_decl() -> IrAstInstruction
-                = value_name:value_assign()? op:operation() {
+                = value_name:value_assign()? op:operation() meta_idx:("," _ mdi:metadata_idx() { mdi })? {
                     IrAstInstruction {
                         value_name,
                         op,
+                        meta_idx,
                     }
                 }
 
             rule value_assign() -> String
                 = name:id() "=" _ {
                     name
+                }
+
+            rule metadata_idx() -> u64
+                = "!" i:decimal() {
+                    i
                 }
 
             rule operation() -> IrAstOperation
@@ -358,7 +364,7 @@ mod ir_builder {
     #[derive(Debug)]
     struct IrAstFnDecl {
         name: String,
-        args: Vec<(IrAstTy, String)>,
+        args: Vec<(IrAstTy, String, Option<u64>)>,
         ret_type: IrAstTy,
         locals: Vec<(IrAstTy, String, bool, Option<IrAstOperation>)>,
         blocks: Vec<IrAstBlock>,
@@ -374,6 +380,7 @@ mod ir_builder {
     struct IrAstInstruction {
         value_name: Option<String>,
         op: IrAstOperation,
+        meta_idx: Option<u64>,
     }
 
     #[derive(Debug)]
@@ -618,7 +625,6 @@ mod ir_builder {
                             name,
                             args,
                             immediate: imm,
-                            span,
                         })
                         .collect();
                     block.ins(context).asm_block(args, body, return_name)

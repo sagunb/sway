@@ -1,8 +1,11 @@
 //! [`Constant`] is a typed constant value.
 
+use sway_types::span::Span;
+
 use crate::{
     context::Context,
     irtype::{Aggregate, Type},
+    metadata::Metadatum,
     value::Value,
 };
 
@@ -99,32 +102,38 @@ impl Constant {
         }
     }
 
-    pub fn get_undef(context: &mut Context, ty: Type) -> Value {
-        Value::new_constant(context, Constant::new_undef(context, ty))
+    pub fn get_undef(context: &mut Context, ty: Type, span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_undef(context, ty), span_md_idx)
     }
 
-    pub fn get_unit(context: &mut Context) -> Value {
-        Value::new_constant(context, Constant::new_unit())
+    pub fn get_unit(context: &mut Context, span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_unit(), span_md_idx)
     }
 
-    pub fn get_bool(context: &mut Context, value: bool) -> Value {
-        Value::new_constant(context, Constant::new_bool(value))
+    pub fn get_bool(context: &mut Context, value: bool, span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_bool(value), span_md_idx)
     }
 
-    pub fn get_uint(context: &mut Context, nbits: u8, value: u64) -> Value {
-        Value::new_constant(context, Constant::new_uint(nbits, value))
+    pub fn get_uint(context: &mut Context, nbits: u8, value: u64, span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_uint(nbits, value), span_md_idx)
     }
 
-    pub fn get_b256(context: &mut Context, value: [u8; 32]) -> Value {
-        Value::new_constant(context, Constant::new_b256(value))
+    pub fn get_b256(context: &mut Context, value: [u8; 32], span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_b256(value), span_md_idx)
     }
 
-    pub fn get_string(context: &mut Context, value: String) -> Value {
-        Value::new_constant(context, Constant::new_string(value))
+    pub fn get_string(context: &mut Context, value: String, span: &Span) -> Value {
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, Constant::new_string(value), span_md_idx)
     }
 
     /// `value` must be created as an array constant first, using [`Constant::new_array()`].
-    pub fn get_array(context: &mut Context, value: Constant) -> Value {
+    pub fn get_array(context: &mut Context, value: Constant, span: &Span) -> Value {
         assert!(matches!(
             value,
             Constant {
@@ -132,11 +141,12 @@ impl Constant {
                 ..
             }
         ));
-        Value::new_constant(context, value)
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, value, span_md_idx)
     }
 
     /// `value` must be created as a struct constant first, using [`Constant::new_struct()`].
-    pub fn get_struct(context: &mut Context, value: Constant) -> Value {
+    pub fn get_struct(context: &mut Context, value: Constant, span: &Span) -> Value {
         assert!(matches!(
             value,
             Constant {
@@ -144,6 +154,7 @@ impl Constant {
                 ..
             }
         ));
-        Value::new_constant(context, value)
+        let span_md_idx = Metadatum::from_span(context, span);
+        Value::new_constant(context, value, span_md_idx)
     }
 }

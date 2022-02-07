@@ -19,6 +19,7 @@ use crate::{
     module::ModuleIterator,
     pointer::PointerContent,
     value::ValueContent,
+    metadata::Metadatum,
 };
 
 /// The main IR context handle.
@@ -35,6 +36,8 @@ pub struct Context {
     pub aggregates: Arena<AggregateContent>,
     pub abi_instances: Arena<AbiInstanceContent>,
     pub asm_blocks: Arena<AsmBlockContent>,
+
+    pub metadata: Arena<Metadatum>,
 
     pub(super) aggregate_names: HashMap<String, Aggregate>,
     aggregate_symbols: HashMap<Aggregate, HashMap<String, u64>>,
