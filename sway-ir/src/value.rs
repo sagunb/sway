@@ -22,7 +22,7 @@ pub struct Value(pub generational_arena::Index);
 #[derive(Debug, Clone)]
 pub struct ValueContent {
     pub value: ValueDatum,
-    pub span_meta: Option<MetadataIndex>,
+    pub span_md_idx: Option<MetadataIndex>,
 }
 
 #[doc(hidden)]
@@ -38,7 +38,7 @@ impl Value {
     pub fn new_argument(context: &mut Context, ty: Type, span_md_idx: MetadataIndex) -> Value {
         let content = ValueContent {
             value: ValueDatum::Argument(ty),
-            span_meta: Some(span_md_idx),
+            span_md_idx: Some(span_md_idx),
         };
         Value(context.values.insert(content))
     }
@@ -51,7 +51,7 @@ impl Value {
     ) -> Value {
         let content = ValueContent {
             value: ValueDatum::Constant(constant),
-            span_meta: Some(span_md_idx),
+            span_md_idx: Some(span_md_idx),
         };
         Value(context.values.insert(content))
     }
@@ -64,7 +64,7 @@ impl Value {
     ) -> Value {
         let content = ValueContent {
             value: ValueDatum::Instruction(instruction),
-            span_meta: opt_span_md_idx,
+            span_md_idx: opt_span_md_idx,
         };
         Value(context.values.insert(content))
     }

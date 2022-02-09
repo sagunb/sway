@@ -16,7 +16,7 @@
 
 use sway_types::ident::Ident;
 
-use crate::{context::Context, irtype::Type, value::Value, metadata::MetadataIndex};
+use crate::{context::Context, irtype::Type, metadata::MetadataIndex, value::Value};
 
 /// A wrapper around an [ECS](https://github.com/fitzgen/generational-arena) handle into the
 /// [`Context`].
@@ -42,7 +42,7 @@ pub struct AsmInstruction {
     pub name: Ident,
     pub args: Vec<Ident>,
     pub immediate: Option<Ident>,
-    pub span_meta: MetadataIndex,
+    pub span_md_idx: MetadataIndex,
 }
 
 impl AsmBlock {

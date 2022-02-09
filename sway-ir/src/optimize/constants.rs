@@ -91,8 +91,8 @@ fn combine_const_aggregate_field(
     let (mut new_aggregate, span_md_idx) = match &context.values[aggregate.0] {
         ValueContent {
             value: ValueDatum::Constant(c),
-            span_meta: Some(span_md_idx),
-        } => (c.clone(), span_md_idx),
+            span_md_idx: Some(span_md_idx),
+        } => (c.clone(), *span_md_idx),
         _otherwise => {
             unreachable!("BUG! Invalid aggregate parameter to combine_const_insert_value()")
         }
@@ -108,7 +108,7 @@ fn combine_const_aggregate_field(
     inject_constant_into_aggregate(&mut new_aggregate, const_value, indices);
 
     // Replace the old aggregate with the new aggregate.
-    let new_aggregate_value = Value::new_constant(context, new_aggregate, *span_md_idx);
+    let new_aggregate_value = Value::new_constant(context, new_aggregate, span_md_idx);
     function.replace_value(context, aggregate, new_aggregate_value, None);
 
     // Remove the old aggregate from the context.

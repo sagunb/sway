@@ -15,11 +15,11 @@ use crate::{
     block::BlockContent,
     function::FunctionContent,
     irtype::{AbiInstanceContent, Aggregate, AggregateContent},
+    metadata::Metadatum,
     module::ModuleContent,
     module::ModuleIterator,
     pointer::PointerContent,
     value::ValueContent,
-    metadata::Metadatum,
 };
 
 /// The main IR context handle.

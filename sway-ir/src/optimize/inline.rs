@@ -193,7 +193,7 @@ fn inline_instruction(
     // restructure instructions somehow, so we don't need a persistent `&Context` to access them.
     if let ValueContent {
         value: ValueDatum::Instruction(old_ins),
-        span_meta,
+        span_md_idx,
     } = context.values[instruction.0].clone()
     {
         let new_ins = match old_ins {
@@ -210,19 +210,23 @@ fn inline_instruction(
                 new_block.ins(context).asm_block_from_asm(
                     asm,
                     new_args,
-                    span_meta.expect("ASM blocks must have a span"),
+                    span_md_idx.expect("ASM blocks must have a span"),
                 )
             }
             // For `br` and `cbr` below we don't need to worry about the phi values, they're
             // adjusted later in `inline_function_call()`.
-            Instruction::Branch(b) => new_block.ins(context).branch(map_block(b), None, span_meta),
+            Instruction::Branch(b) => {
+                new_block
+                    .ins(context)
+                    .branch(map_block(b), None, span_md_idx)
+            }
             Instruction::Call(f, args) => new_block.ins(context).call(
                 f,
                 args.iter()
                     .map(|old_val: &Value| map_value(*old_val))
                     .collect::<Vec<Value>>()
                     .as_slice(),
-                span_meta.expect("CALL instructions must have a span"),
+                span_md_idx.expect("CALL instructions must have a span"),
             ),
             Instruction::ConditionalBranch {
                 cond_value,
@@ -233,7 +237,7 @@ fn inline_instruction(
                 map_block(true_block),
                 map_block(false_block),
                 None,
-                span_meta.expect("CBR instructions must have a span"),
+                span_md_idx.expect("CBR instructions must have a span"),
             ),
             Instruction::ExtractElement {
                 array,
@@ -243,7 +247,7 @@ fn inline_instruction(
                 map_value(array),
                 ty,
                 map_value(index_val),
-                span_meta.expect("EXTRACT_ELEMENT instructions must have a span"),
+                span_md_idx.expect("EXTRACT_ELEMENT instructions must have a span"),
             ),
             Instruction::ExtractValue {
                 aggregate,
@@ -253,9 +257,11 @@ fn inline_instruction(
                 map_value(aggregate),
                 ty,
                 indices,
-                span_meta.expect("EXTRACT_VALUE instructions must have a span"),
+                span_md_idx.expect("EXTRACT_VALUE instructions must have a span"),
             ),
-            Instruction::GetPointer(ptr) => new_block.ins(context).get_ptr(map_ptr(ptr), span_meta),
+            Instruction::GetPointer(ptr) => {
+                new_block.ins(context).get_ptr(map_ptr(ptr), span_md_idx)
+            }
             Instruction::InsertElement {
                 array,
                 ty,
@@ -266,7 +272,7 @@ fn inline_instruction(
                 ty,
                 map_value(value),
                 map_value(index_val),
-                span_meta.expect("INSERT_ELEMENT instructions must have a span"),
+                span_md_idx.expect("INSERT_ELEMENT instructions must have a span"),
             ),
             Instruction::InsertValue {
                 aggregate,
@@ -278,22 +284,22 @@ fn inline_instruction(
                 ty,
                 map_value(value),
                 indices,
-                span_meta.expect("INSERT_VALUE instructions must have a span"),
+                span_md_idx.expect("INSERT_VALUE instructions must have a span"),
             ),
             Instruction::Load(ptr) => new_block.ins(context).load(
                 map_ptr(ptr),
-                span_meta.expect("LOAD instructions must have a span"),
+                span_md_idx.expect("LOAD instructions must have a span"),
             ),
             // We convert `ret` to `br post_block` and add the returned value as a phi value.
             Instruction::Ret(val, _) => {
                 new_block
                     .ins(context)
-                    .branch(*post_block, Some(map_value(val)), span_meta)
+                    .branch(*post_block, Some(map_value(val)), span_md_idx)
             }
             Instruction::Store { ptr, stored_val } => new_block.ins(context).store(
                 map_ptr(ptr),
                 map_value(stored_val),
-                span_meta.expect("STORE instructions must have a span"),
+                span_md_idx.expect("STORE instructions must have a span"),
             ),
 
             // NOTE: We're not translating the phi value yet, since this is the single instance of

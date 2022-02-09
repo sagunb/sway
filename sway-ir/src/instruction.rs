@@ -8,7 +8,7 @@
 //! this should be addressed in the future, perhaps by using compiler intrinsic calls instead of
 //! the ASM blocks where possible.
 
-use sway_types::{ident::Ident, span::Span};
+use sway_types::ident::Ident;
 
 use crate::{
     asm::{AsmArg, AsmBlock, AsmInstruction},
@@ -16,7 +16,7 @@ use crate::{
     context::Context,
     function::Function,
     irtype::{Aggregate, Type},
-    metadata::{MetadataIndex, Metadatum},
+    metadata::MetadataIndex,
     pointer::Pointer,
     value::Value,
 };
@@ -241,9 +241,8 @@ impl<'a> InstructionInserter<'a> {
         args: Vec<AsmArg>,
         body: Vec<AsmInstruction>,
         return_name: Option<Ident>,
-        span: &Span,
+        span_md_idx: MetadataIndex,
     ) -> Value {
-        let span_md_idx = Metadatum::from_span(self.context, span);
         let asm = AsmBlock::new(
             self.context,
             args.iter().map(|arg| arg.name.clone()).collect(),
