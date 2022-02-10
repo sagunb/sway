@@ -70,8 +70,9 @@ impl Value {
     }
 
     /// Return this value's source span.
-    pub fn get_span(&self, _context: &Context) -> Span {
-        todo!("value.get_span()")
+    pub fn get_span(&self, context: &Context) -> Span {
+        let span_md_idx = context.values[self.0].span_md_idx.unwrap();
+        span_md_idx.to_span(context).unwrap()
     }
 
     /// Return whether this is a constant value.

@@ -14,7 +14,7 @@ use crate::{
     function::{Function, FunctionContent},
     instruction::Instruction,
     irtype::Type,
-    metadata::MetadataIndex,
+    metadata::{MetadataIndex, Metadatum},
     module::{Kind, ModuleContent},
     pointer::{Pointer, PointerContent},
     value::{Value, ValueContent, ValueDatum},
@@ -576,8 +576,39 @@ fn asm_block_to_doc(
         .append(Doc::text_line("}"))
 }
 
-fn metadata_to_doc(_context: &Context, _md_namer: &MetadataNamer) -> Doc {
-    todo!()
+fn metadata_to_doc(context: &Context, md_namer: &MetadataNamer) -> Doc {
+    Doc::line(Doc::Empty).append(Doc::List(
+        context
+            .metadata
+            .iter()
+            .map(|(idx, md)| {
+                let ref_idx = md_namer.get(&MetadataIndex(idx));
+                Doc::text_line(match md {
+                    Metadatum::FileLocation(path) => {
+                        format!("!{} = filepath {}", ref_idx, path.display())
+                    }
+                    Metadatum::SourceString(src_str) => {
+                        format!("!{} = sourcestring {}", ref_idx, src_str)
+                    }
+                    Metadatum::Span {
+                        src_idx,
+                        start,
+                        end,
+                        file_idx,
+                    } => {
+                        let src_ref_idx = md_namer.get(src_idx);
+                        let file_ref_idx_str = file_idx
+                            .map(|file_idx| format!(" {}", md_namer.get(&file_idx)))
+                            .unwrap_or_else(|| "".to_owned());
+                        format!(
+                            "{} = span !{} {} {}{}",
+                            ref_idx, src_ref_idx, start, end, file_ref_idx_str
+                        )
+                    }
+                })
+            })
+            .collect(),
+    ))
 }
 
 impl Constant {
@@ -681,6 +712,10 @@ impl MetadataNamer {
             metadata: BTreeMap::new(),
             next_md_idx: 0,
         }
+    }
+
+    fn get(&self, md_idx: &MetadataIndex) -> u64 {
+        self.metadata.get(md_idx).copied().unwrap()
     }
 
     fn meta_as_string(&mut self, md_idx: &Option<MetadataIndex>, comma_prefix: bool) -> String {
