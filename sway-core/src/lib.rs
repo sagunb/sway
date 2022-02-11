@@ -679,8 +679,11 @@ fn parse_root_from_pairs(
         }
     }
 
-    let fuel_ast = fuel_ast_opt.unwrap();
-    ok(fuel_ast, warnings, errors)
+    CompileResult {
+        value: fuel_ast_opt,
+        warnings,
+        errors,
+    }
 }
 
 #[test]
